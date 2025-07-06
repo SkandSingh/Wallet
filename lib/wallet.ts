@@ -2,7 +2,6 @@ import * as bip39 from 'bip39';
 import { derivePath } from 'ed25519-hd-key';
 import { Keypair } from '@solana/web3.js';
 import { ethers } from 'ethers';
-import bcrypt from 'bcryptjs';
 
 export interface WalletAccount {
   publicKey: string;
@@ -11,14 +10,6 @@ export interface WalletAccount {
 }
 
 export class WalletService {
-  static async hashPassword(password: string): Promise<string> {
-    return bcrypt.hash(password, 12);
-  }
-
-  static async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-    return bcrypt.compare(password, hashedPassword);
-  }
-
   static generateSeedPhrase(): string {
     return bip39.generateMnemonic();
   }

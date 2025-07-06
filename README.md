@@ -1,152 +1,238 @@
-# Web3 HD Wallet Application
+# 🌟 Web3 HD Wallet Application
 
-A comprehensive hierarchical deterministic (HD) wallet application built with Next.js, supporting both Solana and Ethereum blockchains.
+A modern, secure hierarchical deterministic (HD) wallet application built with Next.js, supporting both Solana and Ethereum blockchains. Features a hybrid navigation architecture optimized for security and user experience.
 
-## 🚀 Features
+## 🚀 Key Features
 
-### 🔐 Security & Authentication
-- **Password Protection**: Users create and confirm passwords with bcrypt hashing
-- **Seed Phrase Generation**: Automatic BIP39 12-word mnemonic generation
-- **Click-to-Copy**: Easy copying of seed phrases and public keys
+### 🔐 Security-First Design
+- **Seed Phrase Authentication**: Industry-standard BIP39 12-word mnemonic (no passwords)
+- **Memory-Safe**: Sensitive data stays in memory during auth flow
 - **HD Key Derivation**: BIP44 standard for generating multiple accounts
+- **Secure Storage**: Minimal persistent data, maximum security
 
 ### 🌐 Multi-Blockchain Support
-- **Solana**: Fast, low-cost transactions
-- **Ethereum**: Rich DeFi ecosystem and smart contracts
-- **Account Management**: Create unlimited accounts per blockchain
-- **Key Display**: View public keys/addresses with easy copying
+- **Solana**: Fast, low-cost transactions with ed25519 cryptography
+- **Ethereum**: Rich DeFi ecosystem with secp256k1 key pairs
+- **Account Management**: Unlimited accounts per blockchain
+- **Key Display**: View and copy addresses with one-click
 
-### 💾 Database Integration
-- **PostgreSQL**: Using Neon.tech cloud database
-- **Prisma ORM**: Type-safe database operations
-- **Data Models**: Users, Wallets, and Accounts with proper relationships
+### 🎯 Hybrid Navigation Architecture
+- **Conditional Rendering**: Smooth auth flow without page reloads
+- **Page Routing**: Proper browser navigation for main app features
+- **Smart Redirects**: Automatic routing based on authentication state
+- **State Management**: Secure data flow between components
 
 ### 🎨 Modern UI/UX
-- **Responsive Design**: Works on desktop and mobile
-- **Gradient Backgrounds**: Beautiful visual design
-- **Interactive Elements**: Hover effects and smooth transitions
-- **Copy Feedback**: Visual confirmation when copying to clipboard
+- **Responsive Design**: Mobile-first approach with Tailwind CSS
+- **Glass Morphism**: Beautiful gradient backgrounds and effects
+- **Interactive Elements**: Smooth transitions and hover effects
+- **Copy Feedback**: Visual confirmation for all copy operations
 
 ## 🛠️ Technology Stack
 
-- **Frontend**: Next.js 15, React 19, TypeScript
-- **Styling**: Tailwind CSS
+- **Framework**: Next.js 15 with App Router
+- **Frontend**: React 19, TypeScript, Tailwind CSS
 - **Database**: PostgreSQL (Neon.tech) + Prisma ORM
 - **Cryptography**: bip39, ed25519-hd-key, @solana/web3.js, ethers.js
-- **Security**: bcryptjs for password hashing
+- **Navigation**: Hybrid conditional rendering + page routing
 
 ## 📋 Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
-- Neon.tech account (free tier available)
+- PostgreSQL database (Neon.tech recommended)
 
 ## ⚡ Quick Start
 
-1. **Clone and Install**
-   ```bash
-   git clone <your-repo>
-   cd wallet
-   npm install
-   ```
+### 1. **Clone and Install**
+```bash
+git clone <your-repo-url>
+cd wallet
+npm install
+```
 
-2. **Set Up Environment Variables**
-   ```bash
-   cp .env.example .env
-   ```
-   - Create account at [neon.tech](https://neon.tech)
-   - Create new project and get connection string
-   - Update `.env` file with your actual DATABASE_URL
+### 2. **Database Setup**
+```bash
+# Copy environment template
+cp .env.example .env
 
-3. **Initialize Database**
-   ```bash
-   npx prisma migrate dev --name init
-   ```
+# Update .env with your database URL from neon.tech
+# DATABASE_URL="postgresql://..."
 
-4. **Start Development Server**
-   ```bash
-   npm run dev
-   ```
+# Initialize database
+npx prisma migrate dev --name init
+```
 
-5. **Open Application**
-   Visit [http://localhost:3000](http://localhost:3000)
+### 3. **Start Development**
+```bash
+npm run dev
+```
 
-## 🔄 User Flow
+### 4. **Open Application**
+Visit [http://localhost:3000](http://localhost:3000)
 
-1. **Password Setup**: Create and confirm a secure password
-2. **Seed Phrase**: View and safely store your 12-word recovery phrase
-3. **Blockchain Selection**: Choose between Solana and Ethereum
-4. **Account Management**: Create, view, and manage multiple accounts
-5. **Key Management**: Copy public keys and manage your accounts
+## 🔄 User Journey
+
+### Authentication Flow (Conditional Rendering)
+```
+Welcome → Import/Create → Wallet Setup → Dashboard
+```
+
+1. **Welcome**: Choose to import existing wallet or create new
+2. **Import**: Enter 12-word seed phrase to restore wallets
+3. **Create**: Generate and confirm new seed phrase
+4. **Wallet Setup**: Create blockchain wallets (Solana/Ethereum)
+5. **Dashboard**: Manage accounts and transactions
+
+## 🏗️ Architecture
+
+### Route Structure
+```
+/ (Smart redirect)
+├── /auth (Complete auth flow - conditional rendering)
+│   ├── Welcome screen
+│   ├── Seed phrase import/create
+│   ├── Wallet selection
+│   └── → Redirect to dashboard
+└── /dashboard (Main app - page routing)
+    ├── Account management
+    ├── Transaction interface
+    └── Secure logout
+```
+
+### State Management Strategy
+| Storage | Purpose | Data |
+|---------|---------|------|
+| **Memory** | Runtime state | Seed phrases, wallets, user data |
+| **Database** | Persistence | Wallet metadata and accounts |
+
+*Note: No browser storage (localStorage/sessionStorage) is used for security.*
 
 ## 📁 Project Structure
 
 ```
 app/
-├── api/
-│   ├── auth/register/     # User registration
-│   ├── wallet/           # Wallet management
-│   └── account/          # Account operations
-├── components/           # React components
-│   ├── PasswordSetup.tsx
+├── auth/
+│   └── page.tsx         # Complete authentication & wallet management flow
+├── components/          # Reusable React components
+│   ├── AppLayout.tsx    # Shared layout component
+│   ├── WelcomeScreen.tsx
+│   ├── SeedPhraseImport.tsx
 │   ├── SeedPhraseDisplay.tsx
 │   ├── WalletSelection.tsx
 │   └── WalletDashboard.tsx
-├── globals.css          # Global styles
-├── layout.tsx           # App layout
-└── page.tsx            # Main page
+├── api/                 # Backend API routes
+│   ├── seed-phrase/     # BIP39 validation
+│   ├── wallet/         # Wallet creation & import
+│   └── account/        # Account management
+├── globals.css
+├── layout.tsx
+└── page.tsx            # Smart redirect entry point
 
 lib/
-├── prisma.ts           # Prisma client
-└── wallet.ts           # Crypto utilities
+├── prisma.ts           # Database client
+└── wallet.ts           # Cryptographic utilities
 
 prisma/
-└── schema.prisma       # Database schema
+├── schema.prisma       # Database schema
+└── migrations/         # Database migrations
 ```
 
-## 🔒 Security Considerations
+## �️ Database Schema
 
-⚠️ **Development Note**: This is a demonstration application. For production:
+```sql
+User {
+  id          String   @id @default(cuid())
+  seedPhrase  String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  wallets     Wallet[]
+}
 
-- Implement proper private key encryption (AES-256)
-- Add session management and authentication
+Wallet {
+  id         String    @id @default(cuid())
+  userId     String
+  name       String
+  blockchain String
+  user       User      @relation(fields: [userId], references: [id])
+  accounts   Account[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+Account {
+  id           String   @id @default(cuid())
+  walletId     String
+  name         String
+  publicKey    String
+  privateKey   String
+  accountIndex Int
+  wallet       Wallet   @relation(fields: [walletId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+```
+
+## 🔐 Security Features
+
+### ✅ **Implemented**
+- Seed phrase-only authentication (no passwords)
+- BIP39 mnemonic validation
+- Memory-safe secret handling
+- Automatic session cleanup
+- Protected route access control
+- Secure API endpoints
+
+### 🚨 **Production Considerations**
+- Implement private key encryption at rest
+- Add session token management
 - Use HTTPS in production
 - Implement rate limiting
-- Consider hardware security modules
 - Add comprehensive input validation
-- Implement proper error handling
+- Consider hardware security modules (HSMs)
 
-## 🌟 Key Features Explained
+## 🌟 Key Innovations
 
-### HD Wallet Generation
-- Uses BIP39 for mnemonic generation
-- BIP44 derivation path for account generation
-- Supports multiple accounts per wallet
+### Hybrid Navigation
+- **Auth Flow**: Conditional rendering for smooth UX and security
+- **Main App**: Page routing for proper browser navigation
+- **Smart Routing**: Automatic redirection based on user state
 
-### Blockchain Integration
-- **Solana**: Uses `@solana/web3.js` for key pair generation
-- **Ethereum**: Uses `ethers.js` for wallet creation
-- Proper derivation paths for each blockchain
+### Crypto Implementation
+- **Solana**: Ed25519 key generation with proper derivation paths
+- **Ethereum**: Secp256k1 with ethers.js integration
+- **BIP Standards**: Full BIP39/BIP44 compliance
 
-### Database Schema
-```sql
-User (id, password, seedPhrase, createdAt, updatedAt)
-Wallet (id, userId, name, blockchain, createdAt, updatedAt)
-Account (id, walletId, name, publicKey, privateKey, accountIndex, createdAt, updatedAt)
+### State Architecture
+- Minimal persistent storage for maximum security
+- Clean separation between auth and app state
+- Automatic cleanup on logout
+
+## 🚀 Available Scripts
+
+```bash
+npm run dev      # Start development server
+npm run build    # Create production build
+npm run start    # Start production server
+npm run lint     # Run ESLint
 ```
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
 
-This project is for educational purposes. Use at your own risk in production environments.
+This project is for educational and demonstration purposes. Use responsibly and add appropriate security measures for production deployments.
 
 ## 🆘 Support
 
-For setup help, see [SETUP.md](./SETUP.md) for detailed instructions.
+For issues or questions:
+1. Check the database connection in `.env`
+2. Ensure Prisma migrations are applied
+3. Verify Node.js version compatibility (18+)
+4. Review browser console for client-side errors

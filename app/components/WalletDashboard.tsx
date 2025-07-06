@@ -21,9 +21,10 @@ interface WalletDashboardProps {
   seedPhrase: string;
   availableWallets?: Wallet[];
   onWalletChange?: (wallet: Wallet) => void;
+  onLogout?: () => void;
 }
 
-export default function WalletDashboard({ wallet, seedPhrase, availableWallets, onWalletChange }: WalletDashboardProps) {
+export default function WalletDashboard({ wallet, seedPhrase, availableWallets, onWalletChange, onLogout }: WalletDashboardProps) {
   const [accounts, setAccounts] = useState<Account[]>(wallet.accounts || []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -116,9 +117,19 @@ export default function WalletDashboard({ wallet, seedPhrase, availableWallets, 
           </h2>
           <p className="text-gray-600 capitalize">{wallet.blockchain} Wallet</p>
         </div>
-        <div className="text-right">
-          <p className="text-sm text-gray-500">Total Accounts</p>
-          <p className="text-2xl font-bold text-blue-600">{accounts.length}</p>
+        <div className="flex items-center space-x-4">
+          <div className="text-right">
+            <p className="text-sm text-gray-500">Total Accounts</p>
+            <p className="text-2xl font-bold text-blue-600">{accounts.length}</p>
+          </div>
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Logout
+            </button>
+          )}
         </div>
       </div>
 

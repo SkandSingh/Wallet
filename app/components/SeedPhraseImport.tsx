@@ -45,7 +45,7 @@ export default function SeedPhraseImport({ onImportSuccess }: SeedPhraseImportPr
 
     try {
       // First validate the seed phrase
-      const validateResponse = await fetch('/api/auth/import', {
+      const validateResponse = await fetch('/api/seed-phrase', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
