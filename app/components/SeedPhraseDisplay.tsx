@@ -1,19 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { WalletService } from '../../lib/wallet';
 
 interface SeedPhraseDisplayProps {
   seedPhrase: string;
-  onConfirmed: () => void;
+  onConfirmed: (userId: string, seedPhrase: string) => void;
 }
 
 export default function SeedPhraseDisplay({ seedPhrase, onConfirmed }: SeedPhraseDisplayProps) {
   const [copied, setCopied] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [displayPhrase, setDisplayPhrase] = useState(seedPhrase);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  // Generate seed phrase if not provided
+  useEffect(() => {
+    if (!seedPhrase) {
+      const newSeedPhrase = WalletService.generateSeedPhrase();
+      setDisplayPhrase(newSeedPhrase);
+    }
+  }, [seedPhrase]);
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(seedPhrase);
+      await navigator.clipboard.writeText(displayPhrase);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -21,12 +33,38 @@ export default function SeedPhraseDisplay({ seedPhrase, onConfirmed }: SeedPhras
     }
   };
 
-  const handleConfirm = () => {
-    setConfirmed(true);
-    onConfirmed();
+  const handleConfirm = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      // Create user with the seed phrase
+      const response = await fetch('/api/wallet/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          seedPhrase: displayPhrase,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setConfirmed(true);
+        onConfirmed(data.userId, displayPhrase);
+      } else {
+        setError(data.error || 'Failed to create wallet');
+      }
+    } catch {
+      setError('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const words = seedPhrase.split(' ');
+  const words = displayPhrase.split(' ');
 
   return (
     <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
@@ -72,6 +110,12 @@ export default function SeedPhraseDisplay({ seedPhrase, onConfirmed }: SeedPhras
       </div>
 
       <div className="space-y-4">
+        {error && (
+          <div className="p-3 bg-red-600/20 border border-red-400/30 rounded-lg">
+            <p className="text-red-400 text-sm">{error}</p>
+          </div>
+        )}
+
         <label className="flex items-center">
           <input
             type="checkbox"
@@ -84,13 +128,15 @@ export default function SeedPhraseDisplay({ seedPhrase, onConfirmed }: SeedPhras
           </span>
         </label>
         
-        <button
-          onClick={handleConfirm}
-          disabled={!confirmed}
-          className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
-        >
-          Continue to Wallet Selection
-        </button>
+        <div className="space-x-3">
+          <button
+            onClick={handleConfirm}
+            disabled={!confirmed || loading}
+            className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Creating Wallet...' : 'Continue to Wallet Selection'}
+          </button>
+        </div>
       </div>
     </div>
   );

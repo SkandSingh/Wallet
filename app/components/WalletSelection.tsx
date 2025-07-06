@@ -128,13 +128,15 @@ export default function WalletSelection({ userId, onWalletSelected }: WalletSele
           <div className="text-red-600 text-sm">{error}</div>
         )}
         
-        <button
-          onClick={handleCreateWallet}
-          disabled={loading || !walletName.trim()}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
-        >
-          {loading ? 'Creating Wallet...' : `Create ${selectedBlockchain} Wallet`}
-        </button>
+        <div className="space-x-3">
+          <button
+            onClick={handleCreateWallet}
+            disabled={loading || !walletName.trim()}
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Creating Wallet...' : `Create ${selectedBlockchain} Wallet`}
+          </button>
+        </div>
       </div>
     </div>
   );

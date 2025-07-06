@@ -19,9 +19,11 @@ interface Wallet {
 interface WalletDashboardProps {
   wallet: Wallet;
   seedPhrase: string;
+  availableWallets?: Wallet[];
+  onWalletChange?: (wallet: Wallet) => void;
 }
 
-export default function WalletDashboard({ wallet, seedPhrase }: WalletDashboardProps) {
+export default function WalletDashboard({ wallet, seedPhrase, availableWallets, onWalletChange }: WalletDashboardProps) {
   const [accounts, setAccounts] = useState<Account[]>(wallet.accounts || []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -119,6 +121,38 @@ export default function WalletDashboard({ wallet, seedPhrase }: WalletDashboardP
           <p className="text-2xl font-bold text-blue-600">{accounts.length}</p>
         </div>
       </div>
+
+      {/* Wallet Switcher - only show if multiple wallets available */}
+      {availableWallets && availableWallets.length > 1 && (
+        <div className="bg-blue-50 rounded-lg p-4 mb-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-3">Switch Wallet</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {availableWallets.map((availableWallet) => (
+              <button
+                key={availableWallet.id}
+                onClick={() => onWalletChange?.(availableWallet)}
+                className={`p-3 rounded-lg border-2 transition-all ${
+                  availableWallet.id === wallet.id
+                    ? 'border-blue-500 bg-blue-100'
+                    : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="text-2xl">
+                    {availableWallet.blockchain === 'solana' ? '🟣' : '🔷'}
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-gray-800">{availableWallet.name}</p>
+                    <p className="text-sm text-gray-600 capitalize">
+                      {availableWallet.blockchain} • {availableWallet.accounts.length} accounts
+                    </p>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Add New Account Section */}
       <div className="bg-gray-50 rounded-lg p-4 mb-6">
